@@ -1,13 +1,24 @@
-// import bodyParser from 'body-parser'
 import express from 'express'
-import mongoose from 'mongoose'
+import bodyParser from 'body-parser'
 const pug = require('pug')
+import mongoose from 'mongoose'
+import './model/guest'
+
+const app = express()
+
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
+app.set('view engine', 'pug')
+app.set('views', 'views')
+// app.use(express.static('./public'))
+// app.use(express.json())
+// app.use(express.urlencoded({ extended: false }))
 
 mongoose.connect('mongodb://localhost:27017/rsvp', {
   useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useFindAndModify: false,
-  useCreateIndex: true,
+  //   useUnifiedTopology: true,
+  //   useFindAndModify: false,
+  //   useCreateIndex: true,
 })
 
 //used fom kitten tutorial
@@ -17,62 +28,42 @@ db.once('open', function () {
   console.log('connected!')
 })
 
-const responseSchema = mongoose.Schema({
-  name: String,
-  email: String,
-  attending: Boolean,
-  guests: Number,
-})
+const Guest = mongoose.model('Guest')
 
-const Response = mongoose.model('responses', responseSchema)
-
-const app = express()
-app.set('view engine', 'pug')
-app.use(express.static('./public'))
-// app.use(bodyParser.json())
-// app.use(bodyParser.urlencoded({ extended: true }))
-app.use(express.json())
-app.use(express.urlencoded({ extended: false }))
-
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
   res.render('index', { title: 'Event RSVP' })
 })
 
-app.post('/reply', (req, res) => {
-  console.log(req.body)
-  const data = new Response({
+app.post('/reply', async (req, res) => {
+  const newGuest = new Guest({
     name: req.body.name,
     email: req.body.email,
-    attending: req.body.attending,
+    attending: req.body.attending == 'true' ? true : false,
     guests: req.body.guests,
   })
-  data.save()
+  newGuest.save()
   res.render('reply')
 })
 
 app.get('/guests', (req, res) => {
-  Response.find((err, data) => {
-    let attendingData = data.map((group) => {
-      if (group.attending === true) {
-        return group
+  Guest.find((err, data) => {
+    console.log(data)
+    let attendingData = data.map((guest) => {
+      if (guest.attending === true) {
+        return guest.name
       }
     })
-    let notAttendingData = data.map((group) => {
-      if (group.attending === false) {
-        return group
+    let notAttendingData = data.map((guest) => {
+      if (guest.attending === false) {
+        return guest.name
       }
     })
-
-    if (err) {
-      return
-    } else {
-      res.render('guests', {
-        title: 'Guests',
-        h1: 'Guest List',
-        attending: attendingData,
-        notAttending: notAttendingData,
-      })
-    }
+    res.render('guests', {
+      title: 'Guests',
+      h1: 'Guest List',
+      attending: attendingData,
+      notAttending: notAttendingData,
+    })
   })
 })
 

@@ -13,9 +13,9 @@ html
                     br
                     br
                     legend="Will You Be Here:"
-                    input(type="radio", name="attending" value=`${true}`)
+                    input(type="radio", name="attending" id = "attending" value=`${true}`)
                     label(for="attending")="attending"
-                    input(type="radio", name="attending" value=`${false}`)
+                    input(type="radio", name="attending" id = "notAttending" value=`${false}`)
                     label(for="notAttending")="not attending"
                     br
                     br
@@ -33,4 +33,4 @@ html
                             option(value="8")= '8'
                     button(type="submit")= "Submit" 
             form(action="/guests" method="GET")
-                button(type="submit")= "Guest Lists" 
+                button(type="submit")= "Guest Lists"
