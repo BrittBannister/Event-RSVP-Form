@@ -1,0 +1,14 @@
+html
+    head
+        title= title
+    body
+        h1= h1
+        br
+        h3= 'Attending'
+        ul
+            each guest in attending
+                li= guest
+        h3= 'Not Attending'
+        ul
+            each guest in notAttending
+                li= guest
