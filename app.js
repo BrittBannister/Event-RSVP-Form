@@ -1,3 +1,4 @@
+// import bodyParser from 'body-parser'
 import express from 'express'
 import mongoose from 'mongoose'
 const pug = require('pug')
@@ -28,11 +29,25 @@ const Response = mongoose.model('responses', responseSchema)
 const app = express()
 app.set('view engine', 'pug')
 app.use(express.static('./public'))
+// app.use(bodyParser.json())
+// app.use(bodyParser.urlencoded({ extended: true }))
 app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
+app.use(express.urlencoded({ extended: false }))
 
 app.get('/', (req, res) => {
   res.render('index', { title: 'Event RSVP' })
+})
+
+app.post('/reply', (req, res) => {
+  console.log(req.body)
+  const data = new Response({
+    name: req.body.name,
+    email: req.body.email,
+    attending: req.body.attending,
+    guests: req.body.guests,
+  })
+  data.save()
+  res.render('reply')
 })
 
 app.get('/guests', (req, res) => {
@@ -59,13 +74,6 @@ app.get('/guests', (req, res) => {
       })
     }
   })
-})
-
-app.post('/reply', (req, res) => {
-  const data = req.body
-  const datas = new Response(data)
-  datas.save()
-  res.render('reply')
 })
 
 app.get('*', (req, res) => {
