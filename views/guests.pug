@@ -1,14 +1,19 @@
 html
     head
         title= title
+    style
+        include style.css
     body
         h1= h1
         br
-        h3= 'Attending'
-        ul
+        h2= 'Attending'
+            hr
             each guest in attending
-                li= guest
-        h3= 'Not Attending'
-        ul
+                div.item= guest
+        br
+        h2= 'Not Attending'
+            hr
             each guest in notAttending
-                li= guest
+                div.item=guest
+
+        
