@@ -2,6 +2,20 @@ import express from 'express'
 import mongoose from 'mongoose'
 const pug = require('pug')
 
+mongoose.connect('mongodb://localhost:27017/rsvp', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useFindAndModify: false,
+  useCreateIndex: true,
+})
+
+//used fom kitten tutorial
+const db = mongoose.connection
+db.on('error', console.error.bind(console, 'connection error:'))
+db.once('open', function () {
+  console.log('connected!')
+})
+
 const responseSchema = mongoose.Schema({
   name: String,
   email: String,
@@ -11,82 +25,55 @@ const responseSchema = mongoose.Schema({
 
 const Response = mongoose.model('responses', responseSchema)
 
-const startServer = async () => {
-  mongoose.Promise = global.Promise
-  await mongoose.connect('mongodb://localhost:27017/rsvp', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false,
-    useCreateIndex: true,
-  })
-  const app = express()
-  app.set('view engine', 'pug')
-  app.use(express.static('./public'))
-  app.use(express.json())
-  app.use(express.urlencoded({ extended: false }))
+const app = express()
+app.set('view engine', 'pug')
+app.use(express.static('./public'))
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
-  app.get('/', (req, res) => {
-    res.render('index', { title: 'Event RSVP' })
-  })
+app.get('/', (req, res) => {
+  res.render('index', { title: 'Event RSVP' })
+})
 
-  app.get('/guestlist', (req, res) => {
-    Response.find((err, data) => {
-      let attendingData = data.map((groupList) => {
-        if (groupList.attending === true) {
-          return groupList
-        }
-      })
-      let notAttendingData = data.map((groupList) => {
-        if (groupList.attending === false) {
-          return groupList
-        }
-      })
-
-      if (err) {
-        return console.error(err)
-      } else {
-        res.render('guests', {
-          title: 'Guests',
-          h1: 'Guest List',
-          attending: attendingData,
-          notAttending: notAttendingData,
-        })
+app.get('/guests', (req, res) => {
+  Response.find((err, data) => {
+    let attendingData = data.map((group) => {
+      if (group.attending === true) {
+        return group
       }
     })
-  })
-
-  //   //TODO: add res.status(400).send() for bad data/return
-  //   //TODO: add res.status(201).send() for success
-  app.post('/reply', (req, res) => {
-    console.log(req.body)
-    const nextResponse = new responses({
-      name: req.body.name,
-      email: req.body.email,
-      attending: req.body.attending,
-      guest: req.body.guest,
+    let notAttendingData = data.map((group) => {
+      if (group.attending === false) {
+        return group
+      }
     })
-    nextResponse
-      .save()
-      .then(() => {
-        res.render('reply', {
-          title: 'Thank you',
-          h1: 'Thank you for your response!',
-        })
+
+    if (err) {
+      return
+    } else {
+      res.render('guests', {
+        title: 'Guests',
+        h1: 'Guest List',
+        attending: attendingData,
+        notAttending: notAttendingData,
       })
-      .catch((err) => {
-        res.status(400).send(err)
-      })
+    }
   })
+})
 
-  const port = process.env.PORT || 3000
-  app.listen(port, () => console.log(`Server started on port ${port}...`))
-}
+app.post('/reply', (req, res) => {
+  const data = req.body
+  const datas = new Response(data)
+  datas.save()
+  res.render('reply')
+})
 
-try {
-  startServer()
-} catch (err) {
-  console.error('Server unable to start.')
-}
+app.get('*', (req, res) => {
+  res.status(404).send('404 Not Found')
+})
+
+const port = process.env.PORT || 3000
+app.listen(port, () => console.log(`Server started on port ${port}...`))
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled rejection at: ', promise, 'reason:', reason)

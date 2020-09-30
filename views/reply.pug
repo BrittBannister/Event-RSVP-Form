@@ -3,5 +3,7 @@ html
     head
         title= title
     body
-        h1= h1
+        h1= 'Thank you for your response!'
         a(href = '/guestlist') View Guest List
+        form(action="/" method="GET")
+            button(type="submit")= "HOME"

@@ -1,40 +1,36 @@
-doctype
-html   
-    head    
-        title= RSVP
-    body   
-        h1= 'Please RSVP With The Form Below'
-        hr
-        form(action='/reply' method='post')
-        fieldset
-            legend Contact Info:
-            label(for='name') Name:
-            input(type='text' name='name' required)
-            br
-            label(for='email') email:
-            input(type='email' name = 'email' required)
-            br
-            br
-            fieldset  
-                legend Will you be attending:
-                input(id='attending' type='radio' name='attending' value=true)
-                label(for='attending') Attending.
-                input(id='notAttending' type='radio' name='notAttending' value=false)
-                label(for='notAttending') Not Attending.
-                br
-            fieldset
-                legend Number of Guests:
-                select(name="numOfGuests")
-                        option(value='0') 0
-                        option(value='1') 1
-                        option(value='2') 2
-                        option(value='3') 3
-                        option(value='4') 4
-                        option(value='5') 5
-                        option(value='6') 6
-                        option(value='7') 7
-                        option(value='8') 8
-            button(type='submit') Submit
-        form(action = '/guestlist' method = 'GET')
-            button(type = 'submit') Guest List
-
+html
+    body
+        h1= "Please RSVP with the form below:"
+            hr
+            form(action="/reply", method="POST")
+                fieldset
+                    legend="Contact Info"
+                    label(for="name")="Name:"
+                    input(type="text", name="name" required)
+                    br
+                    label(for="email")="Email:"
+                    input(type="email", name="email" required)
+                    br
+                    br
+                    legend="Will You Be Here:"
+                    input(type="radio", name="attending" value=`${true}`)
+                    label(for="attending")="attending"
+                    input(type="radio", name="attending" value=`${false}`)
+                    label(for="notAttending")="not attending"
+                    br
+                    br
+                    legend="Number of Guests:"
+                        br
+                        select(type="option" name="guests")= "Guests"
+                            option(value="0")= '0'
+                            option(value="1")= '1'
+                            option(value="2")= '2'
+                            option(value="3")= '3'
+                            option(value="4")= '4'
+                            option(value="5")= '5'
+                            option(value="6")= '6'
+                            option(value="7")= '7'
+                            option(value="8")= '8'
+                    button(type="submit")= "Submit" 
+            form(action="/guests" method="GET")
+                button(type="submit")= "Guest Lists" 
